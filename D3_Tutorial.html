@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta charset="utf-8">
+    <title>D3 Tutorial</title>
+
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+      div.bar {
+        display: inline-block;
+        background-color: rgb(0,0,0);
+        height: 0px;
+        width:14px;
+        margin-left: 2px;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div id="graph1"></div>
+    <br />
+    <div id="graph2"></div>
+    <script type="text/javascript">
+
+    <!-- see http://alignedleft.com/tutorials/d3/ -->
+      function graph(name, data, func)
+      {
+        d3.select(name)
+        .selectAll("div")
+        .data(data)
+        .enter()
+        .append("div")
+        .attr("class", "bar")
+        .style({
+          "height": function(d){
+            return func(d) + "px";
+          },
+          "background-color": function(d){
+            var height = func(d);
+            if (height <= 255)
+            {
+              var red = height;
+              var green = Math.floor(height / 3);
+              var blue = 255 - height;
+              return "rgb(" + red + ", " + green + ", " + blue + ")";
+            }
+            else
+            {
+              return "rgb(255, 85, 0)";
+            }
+          }
+        });
+      }
+
+      var orderedData = [];
+      for (var i = 1; i <= 20; i++)
+      {
+        orderedData.push(i);
+      }
+      for (var i = 19; i >= 6; i--)
+      {
+        orderedData.push(i);
+      }
+      for (var i = 7; i <= 16; i++)
+      {
+        orderedData.push(i);
+      }
+      for (var i = 15; i >= 1; i--)
+      {
+        orderedData.push(i);
+      }
+
+      graph("#graph1", orderedData, function(d){return d * d});
+
+      var randomData = [];
+      for (var i = 0; i <= 50; i++)
+      {
+        randomData.push(Math.round(Math.random() * -255) + 255);
+      }
+
+      graph("#graph2", randomData, function(d){return d});
+
+    </script>
+  </body>
+</html>
