@@ -8,66 +8,82 @@
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
     <style type="text/css">
-      div.bar {
-        display: inline-block;
-        background-color: rgb(0,0,0);
-        height: 0px;
-        width:14px;
-        margin-left: 2px;
-      }
+
     </style>
 
   </head>
   <body>
-    <div id="graph1"></div>
+    <svg id="graph1" width="98%" height="98%"></svg>
     <br />
-    <div id="graph2"></div>
+    <br />
+    <svg id="graph2" width="98%" height="98%"></svg>
+    <br />
+    <br />
+    <svg id="graph3" width="98%" height="98%"></svg>
     <script type="text/javascript">
 
     <!-- see http://alignedleft.com/tutorials/d3/ -->
+    // Maps data to a standard vector graphic
       function graph(name, data, func)
       {
-        d3.select(name)
-        .selectAll("div")
+        var svg = d3.select("body").select(name)
+        var width = parseInt(svg.style("width").substring(0, svg.style("width").length - 2));
+        var height = parseInt(svg.style("height").substring(0, svg.style("height").length -2 ));
+
+        // Scale for input
+        var xScale = d3.scale.linear()
+          .domain([0, data.length])
+          .range([0, width]);
+
+        // Scale for output
+        var yScale = d3.scale.linear()
+          .domain([0, func(d3.max(data))])
+          .range([0, height]);
+
+        // Scale for color
+        var colorScale = d3.scale.linear()
+          .domain([0, func(d3.max(data))])
+          .range([0, 255]);
+
+        // Mapping the data
+        svg
+        .selectAll("rect")
         .data(data)
         .enter()
-        .append("div")
+        .append("rect")
         .attr("class", "bar")
-        .style({
-          "height": function(d){
-            return func(d) + "px";
-          },
-          "background-color": function(d){
-            var height = func(d);
-            if (height <= 255)
-            {
-              var red = height;
-              var green = Math.floor(height / 3);
-              var blue = 255 - height;
-              return "rgb(" + red + ", " + green + ", " + blue + ")";
-            }
-            else
-            {
-              return "rgb(255, 85, 0)";
-            }
-          }
-        });
-      }
+        .attr("height", function(d){
+          return yScale(func(d));
+        })
+        .attr("x", function(d, i){
+            return xScale(i);
+        })
+        .attr("y", function(d){
+            return height - yScale(func(d));
+        })
+        .attr("fill", function(d){
+          var currentHeight = Math.floor(colorScale(func(d)));
+          return "rgb(" + currentHeight + ",70," + (255-currentHeight) + ")";
+        })
+        .attr("width", width/data.length - 4)
+        .attr("stroke", "rgb(40,40,40)")
+        .attr("stroke-width", 1);
+      } 
 
       var orderedData = [];
       for (var i = 1; i <= 20; i++)
       {
         orderedData.push(i);
       }
-      for (var i = 19; i >= 6; i--)
+      for (var i = 19; i > 5; i--)
       {
         orderedData.push(i);
       }
-      for (var i = 7; i <= 16; i++)
+      for (var i = 6; i <= 18; i++)
       {
         orderedData.push(i);
       }
-      for (var i = 15; i >= 1; i--)
+      for (var i = 17; i > 0; i--)
       {
         orderedData.push(i);
       }
@@ -75,12 +91,29 @@
       graph("#graph1", orderedData, function(d){return d * d});
 
       var randomData = [];
-      for (var i = 0; i <= 50; i++)
+      for (var i = 0; i <= 100; i++)
       {
         randomData.push(Math.round(Math.random() * -255) + 255);
       }
 
       graph("#graph2", randomData, function(d){return d});
+
+      var factorData = [];
+      for (var i = 1; i <= 100; i++)
+      {
+        var numberOfFactors = 0;
+        for (var x = 1; x <= i; x++)
+        {
+          if (i % x === 0)
+          {
+            numberOfFactors++;
+          }
+        }
+        factorData.push(numberOfFactors);
+      }
+          
+
+      graph("#graph3", factorData, function(d){return d});
 
     </script>
   </body>
